@@ -1,5 +1,6 @@
+import { timelineSchema } from "../../../lib/timeline.schemas";
 import { tweetSchema } from "../../../lib/tweet.schemas";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const tweetRouter = createTRPCRouter({
   create: protectedProcedure.input(tweetSchema).mutation(({ ctx, input }) => {
@@ -19,4 +20,22 @@ export const tweetRouter = createTRPCRouter({
       },
     });
   }),
+  timeline: publicProcedure
+    .input(timelineSchema)
+    .query(async ({ ctx, input }) => {
+      const { prisma } = ctx;
+      const { cursor, limit, where } = input;
+      const userId = ctx.session?.user?.id;
+
+      const tweets = await prisma.tweet.findMany({
+        take: limit + 1,
+        orderBy: [
+          {
+            createdAt: "desc",
+          },
+        ],
+      });
+
+      return { tweets };
+    }),
 });
