@@ -1,9 +1,6 @@
-import React from "react";
 import CreateTweet from "./CreateTweet";
 
-type Props = {};
-
-function Timeline({}: Props) {
+function Timeline() {
   return (
     <div>
       <h1>Tweet Something</h1>
