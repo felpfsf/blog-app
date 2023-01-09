@@ -34,6 +34,15 @@ export const tweetRouter = createTRPCRouter({
             createdAt: "desc",
           },
         ],
+        include: {
+          author: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+            },
+          },
+        },
       });
 
       return { tweets };
