@@ -7,7 +7,11 @@ import { api } from "../utils/api";
 function CreateTweet() {
   const utils = api.useContext();
 
-  const { mutateAsync } = api.tweet.create.useMutation();
+  const { mutateAsync } = api.tweet.create.useMutation({
+    onSuccess: () => {
+      void utils.tweet.timeline.invalidate();
+    },
+  });
 
   const {
     formState: { errors },
