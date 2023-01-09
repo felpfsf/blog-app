@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Tweet, tweetSchema } from "../lib/tweet.schemas";
+import type { Tweet } from "../lib/tweet.schemas";
+import { tweetSchema } from "../lib/tweet.schemas";
 import { api } from "../utils/api";
 
 function CreateTweet() {
@@ -21,7 +22,7 @@ function CreateTweet() {
     if (!tweetParsed.success) {
       return console.log("Something went wrong");
     }
-    
+
     void mutateAsync(data);
     reset();
   };
