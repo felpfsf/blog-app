@@ -7,7 +7,7 @@ interface Props {
 
 function Layout({ children, classNames }: Props) {
   return (
-    <div className={`m-auto max-w-7xl ${classNames || "default"}`}>
+    <div className={`m-auto max-w-3xl ${classNames || "default"}`}>
       {children}
     </div>
   );
