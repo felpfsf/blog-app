@@ -39,8 +39,8 @@ function Tweet({ input, tweet }: TweetProps) {
           <Image
             src={tweet.author.image}
             alt={`${tweet.author.name || "default"} profile image`}
-            width={48}
-            height={48}
+            width={60}
+            height={60}
             className="rounded-full"
           />
         )}
