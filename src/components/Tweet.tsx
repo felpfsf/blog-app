@@ -1,4 +1,4 @@
-import type { InfiniteData, QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
@@ -9,6 +9,9 @@ import { api } from "../utils/api";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import Link from "next/link";
 import updateCache from "../lib/updateCache";
+
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -55,9 +58,24 @@ function Tweet({ client, input, tweet }: TweetProps) {
 
   const hasLike = tweet.likes.length > 0;
 
+  const swal = withReactContent(Swal);
+
+  const loginRequiredAlert = (text: string) => {
+    void swal.fire({
+      title: text,
+      timer: 1500,
+      backdrop: `
+      rgba(0,0,123,0.4)
+      url("/images/nyan-cat.gif")
+      left top
+      no-repeat
+  `,
+    });
+  };
+
   const handleLike = () => {
     if (!session) {
-      return alert("Login is required");
+      return loginRequiredAlert("Login is required");
     }
 
     if (hasLike) {
@@ -88,7 +106,10 @@ function Tweet({ client, input, tweet }: TweetProps) {
       <div className="flex w-full flex-col">
         <div>
           <h2 className="flex gap-2 font-semibold">
-            <Link href={`/${tweet.author.name || "default"}`} className="border-b border-b-transparent hover:text-purple-500 hover:border-b hover:border-b-purple-500">
+            <Link
+              href={`/${tweet.author.name || "default"}`}
+              className="border-b border-b-transparent hover:border-b hover:border-b-purple-500 hover:text-purple-500"
+            >
               {tweet.author.name}
             </Link>
             <span className="font-light text-neutral-500">{tweetDate}</span>
