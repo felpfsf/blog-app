@@ -1,8 +1,14 @@
+import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import type { RouterInputs, RouterOutputs } from "../utils/api";
+import { api } from "../utils/api";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import Link from "next/link";
+import updateCache from "../lib/updateCache";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -26,12 +32,46 @@ dayjs.updateLocale("en", {
 });
 
 interface TweetProps {
-  input?: RouterInputs["tweet"]["timeline"];
+  client: QueryClient;
+  input: RouterInputs["tweet"]["timeline"];
   tweet: RouterOutputs["tweet"]["timeline"]["tweets"][number];
 }
 
-function Tweet({ input, tweet }: TweetProps) {
+function Tweet({ client, input, tweet }: TweetProps) {
+  const { data: session } = useSession();
   const tweetDate = dayjs(tweet.createdAt).fromNow();
+
+  const likeMutation = api.tweet.like.useMutation({
+    onSuccess: (data, variables) => {
+      updateCache({ action: "like", client, data, input, variables });
+    },
+  }).mutateAsync;
+
+  const unlikeMutation = api.tweet.unlike.useMutation({
+    onSuccess: (data, variables) => {
+      updateCache({ client, data, input, variables, action: "unlike" });
+    },
+  }).mutateAsync;
+
+  const hasLike = tweet.likes.length > 0;
+
+  const handleLike = () => {
+    if (!session) {
+      return alert("Login is required");
+    }
+
+    if (hasLike) {
+      void unlikeMutation({
+        tweetId: tweet.id,
+      });
+      return;
+    }
+
+    void likeMutation({
+      tweetId: tweet.id,
+    });
+  };
+
   return (
     <div className="mb-4 flex gap-x-4 border-b border-b-neutral-400 p-4">
       <div>
@@ -48,11 +88,23 @@ function Tweet({ input, tweet }: TweetProps) {
       <div className="flex w-full flex-col">
         <div>
           <h2 className="flex gap-2 font-semibold">
-            {tweet.author.name}
+            <Link href={`/${tweet.author.name || "default"}`} className="border-b border-b-transparent hover:text-purple-500 hover:border-b hover:border-b-purple-500">
+              {tweet.author.name}
+            </Link>
             <span className="font-light text-neutral-500">{tweetDate}</span>
           </h2>
         </div>
         <p>{tweet.text}</p>
+        <div
+          className={`
+          mt-2 flex cursor-pointer items-center gap-x-2 text-gray-500 hover:text-red-500
+          ${hasLike ? "text-red-500" : "text-gray-500"}
+          `}
+          onClick={handleLike}
+        >
+          {hasLike ? <AiFillHeart /> : <AiOutlineHeart />}
+          <span className="text-xs">{tweet._count.likes}</span>
+        </div>
       </div>
     </div>
   );
