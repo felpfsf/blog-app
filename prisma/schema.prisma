@@ -77,7 +77,7 @@ model Tweet {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    like      Like[]
+    likes      Like[]
 }
 
 model Like {
